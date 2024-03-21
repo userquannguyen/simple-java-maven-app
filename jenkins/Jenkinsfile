@@ -1,11 +1,6 @@
 pipeline {
     agent any
     stages {
-        stage("Clean up") {
-            steps {
-                deleteDir()
-            }
-        }
         stage('Build') {
             steps {
                 sh 'mvn -B -DskipTests clean package'
@@ -13,21 +8,17 @@ pipeline {
         }
         stage('Test') {
             steps {
-                dir("simple-java-maven-app"){
-                    sh 'mvn test'
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
                 }
             }
         }
-        stage('Deliver') {
+        stage('Complete') {
             steps {
-                dir("simple-java-maven-app") {
-                    sh './jenkins/scripts/deliver.sh'
-                }
-            }
-        }
-        stage('Complete'){
-            steps {
-                echo "Build complete"
+                echo "Build Complete"
             }
         }
     }
